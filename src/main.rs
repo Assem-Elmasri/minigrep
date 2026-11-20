@@ -2,7 +2,8 @@ use std::env;
 use std::fs;
 use std::process;
 use std::error::Error; // to bring the Error trait into scope
-use minigrep::search;
+use minigrep::{search, search_case_insensitive};
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -22,17 +23,24 @@ fn main() {
 fn run(cfg: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(cfg.file_path)?;
 
-    for line in search(&cfg.query, &contents) {
-        println!("{line}");
+    let results = if cfg.ignore_case {
+        search_case_insensitive(&cfg.query, &contents)
+    } else {
+        search(&cfg.query, &contents)
+    };
+
+    for line in results {
+        println!("{}", line);
     }
 
     Ok(())
 }
 
 
-struct Config {
-    query: String,
-    file_path: String,
+pub struct Config {
+    pub query: String,
+    pub file_path: String,
+    pub ignore_case: bool,
 }
 
 
@@ -42,8 +50,11 @@ impl Config {
         if args.len() < 3 {
             return Err("not enough arguments");
         }
+
         let query = args[1].clone();
         let file_path = args[2].clone();
-        Ok(Config { query, file_path })
+
+        let ignore_case = env::var("IGNORE_CASE").is_ok();
+        Ok(Config { query, file_path, ignore_case })
     }
 }
