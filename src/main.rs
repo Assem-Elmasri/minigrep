@@ -1,14 +1,13 @@
-use std::fs;
-use std::process;
+use minigrep::config::Config;
+use minigrep::{search, search_case_insensitive};
 use std::env;
 use std::error::Error; // to bring the Error trait into scope
-use minigrep::{search, search_case_insensitive};
-use minigrep::config::Config;
-
+use std::fs;
+use std::process;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-        
+
     let cfg: Config = Config::build(&args).unwrap_or_else(|err| {
         eprintln!("Problem parsing arguments: {}", err);
         process::exit(1);
@@ -18,7 +17,6 @@ fn main() {
         eprintln!("Application error: {}", e);
         process::exit(1);
     }
-
 }
 
 fn run(cfg: Config) -> Result<(), Box<dyn Error>> {
@@ -36,5 +34,3 @@ fn run(cfg: Config) -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-
-
